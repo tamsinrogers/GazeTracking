@@ -17,9 +17,6 @@ frameWidth = int((webcam.get(cv2.CAP_PROP_FRAME_WIDTH)))
 frameHeight = int((webcam.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
 
-
-
-
 while True:
     # We get a new frame from the webcam
     _, frame = webcam.read()
@@ -28,8 +25,6 @@ while True:
     gaze.refresh(frame)
 
     frame = gaze.annotated_frame()
-    
-    
     
     text = ""
 
