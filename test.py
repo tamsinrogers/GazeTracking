@@ -12,8 +12,12 @@ pygame.camera.init()
 gaze = GazeTracking()
 eyecam = cv2.VideoCapture(0)
 
+left_pupil = gaze.pupil_left_coords()
+right_pupil = gaze.pupil_right_coords()
+pupilX = gaze.pupil_right_width()
+pupilY = gaze.pupil_right_height()
 
-overlay = pygame.image.load("overlay.png")      # to be replaced by instruction screen
+overlay = pygame.image.load("overlay.png")		# to be replaced by instruction screen
 #overlay = pygame.image.load('overlay.bmp')
 
 cameras = pygame.camera.list_cameras()
@@ -33,138 +37,219 @@ HEIGHT = img.get_height()
 screen = pygame.display.set_mode( ( WIDTH, HEIGHT ) )
 pygame.display.set_caption("pyGame Camera View")
 
-WHITE =     (255, 255, 255)
-GREEN =     (  0, 255,   0)
+WHITE =		(255, 255, 255)
+GREEN =		(  0, 255,	 0)
 
+topLeft = (50,50)
+topRight = (WIDTH-50,50)
+bottomLeft = (50,HEIGHT-50)
+bottomRight = (WIDTH-50,HEIGHT-50)
+center = pos=(WIDTH/2,HEIGHT/2)
+
+circleSize = 20
 
 def draw_circle_TOP_LEFT():
-    pos=(50,50)
-    pygame.draw.circle(screen, GREEN, pos, 20)
-    
+	pygame.draw.circle(screen, GREEN, topLeft, circleSize)
+	
 def draw_circle_TOP_RIGHT():
-    pos=(WIDTH-50,50)
-    pygame.draw.circle(screen, GREEN, pos, 20)
+	pygame.draw.circle(screen, GREEN, topRight, circleSize)
 
 def draw_circle_BOTTOM_LEFT():
-    pos=(50,HEIGHT-50)
-    pygame.draw.circle(screen, GREEN, pos, 20)
+	pygame.draw.circle(screen, GREEN, bottomLeft, circleSize)
 
 def draw_circle_BOTTOM_RIGHT():
-    pos=(WIDTH-50,HEIGHT-50)
-    pygame.draw.circle(screen, GREEN, pos, 20)
+	pygame.draw.circle(screen, GREEN, bottomRight, circleSize)
+
+def draw_circle_CENTER():
+	pygame.draw.circle(screen, GREEN, center, circleSize)
+	
+def topLeftClicked(x, y):
+	if ( (x >= (topLeft[0]-circleSize/2) and x <= (topLeft[0]+circleSize/2)) and (y >= (topLeft[1]-circleSize/2) and y <= (topLeft[1]+circleSize/2))):
+		return True
+		
+def bottomLeftClicked(x, y):
+	if ( (x >= (bottomLeft[0]-circleSize/2) and x <= (bottomLeft[0]+circleSize/2)) and (y >= (bottomLeft[1]-circleSize/2) and y <= (bottomLeft[1]+circleSize/2))):
+		return True
+
+def topRightClicked(x, y):
+	if ( (x >= (topRight[0]-circleSize/2) and x <= (topRight[0]+circleSize/2)) and (y >= (topRight[1]-circleSize/2) and y <= (topRight[1]+circleSize/2))):
+		return True
+		
+def bottomRightClicked(x, y):
+	if ( (x >= (bottomRight[0]-circleSize/2) and x <= (bottomRight[0]+circleSize/2)) and (y >= (bottomRight[1]-circleSize/2) and y <= (bottomRight[1]+circleSize/2))):
+		return True
+
+def centerClicked(x, y):
+	if ( (x >= (center[0]-circleSize/2) and x <= (center[0]+circleSize/2)) and (y >= (center[1]-circleSize/2) and y <= (center[1]+circleSize/2))):
+		return True
+		
+def accuracy(x1, x2, y1, y2):
+	xDiff = abs(x1-x2)
+	yDiff = abs(y1-y2)
+	totalDiff = (xDiff, yDiff)
+	return totalDiff
+
+text = ""
+
+centerAccuracy = 0
+topLeftAccuracy = 0
+topRightAccuracy = 0
+bottomLeftAccuracy = 0
+bottomRightAccuracy = 0
+
+print("look at each circle and click one at a time")
 
 while True :
-    for e in pygame.event.get() :
-    
-        if e.type == pygame.QUIT :
-            sys.exit()
-    
-    # draw frame
-    screen.blit(img, (0,0))
-    
-    pygame.display.flip()
-    # grab next frame    
-    img = webcam.get_image()
-    
-    # draw the circles
-    draw_circle_TOP_LEFT()
-    draw_circle_TOP_RIGHT()
-    draw_circle_BOTTOM_LEFT()
-    draw_circle_BOTTOM_RIGHT()
-    
-    pygame.display.update()
-    
-    '''EYE TRACKING CODE'''
-    
-    # We get a new frame from the webcam
-    _, frame = eyecam.read()
 
-    # We send this frame to GazeTracking to analyze it
-    gaze.refresh(frame)
+	'''EYE TRACKING CODE'''
+	
+	# We get a new frame from the webcam
+	_, frame = eyecam.read()
 
-    frame = gaze.annotated_frame()
-    
-    pygame.display.update()
+	# We send this frame to GazeTracking to analyze it
+	gaze.refresh(frame)
 
-    
-    text = ""
+	frame = gaze.annotated_frame()
+	
+	pygame.display.update()
 
-    '''
-    if gaze.is_blinking():
-        text = "Blinking"
-    elif gaze.is_right():
-        text = "Looking right"
-    elif gaze.is_left():
-        text = "Looking left"
-    elif gaze.is_center():
-        text = "Looking center"
-    '''
+	# include these values again so they are continuously updated
+	left_pupil = gaze.pupil_left_coords()
+	right_pupil = gaze.pupil_right_coords() # these are the coordinates ON THE SCREEN
+	pupilX = gaze.pupil_right_width()
+	pupilY = gaze.pupil_right_height()
+	
+	mouseX, mouseY = pygame.mouse.get_pos()
+	
+	
+	#cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+	
+	for e in pygame.event.get() :
+	
+		if e.type == pygame.MOUSEBUTTONDOWN:
+			
+			if centerClicked(mouseX, mouseY):
+				origin = right_pupil
+				originX = pupilX
+				originY = pupilY
+				centerAccuracy = accuracy(originX, center[0], originY, center[1])
 
-    cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+				print("calibrating center")
+				break
+		
+			if topLeftClicked(mouseX, mouseY):
+				topLeftX = pupilX
+				topLeftY = pupilY
+				topLeftAccuracy = accuracy(topLeftX, topLeft[0], topLeftY, topLeft[1])
+			
+				print("calibrating top left")
+				break
+		
+			if topRightClicked(mouseX, mouseY):
+				topRightX = pupilX
+				topRightY = pupilY
+				topRightAccuracy = accuracy(topRightX, topRight[0], topRightY, topRight[1])
+			
+				print("calibrating top right")
+				break
+		
+			if bottomLeftClicked(mouseX, mouseY):
+				bottomLeftX = pupilX
+				bottomLeftY = pupilY
+				bottomLeftAccuracy = accuracy(bottomLeftX, bottomLeft[0], bottomLeftY, bottomLeft[1])
+			
+				print("calibrating bottom left")
+				break
+		
+			if bottomRightClicked(mouseX, mouseY):
+				bottomRightX = pupilX
+				bottomRightY = pupilY
+				bottomRightAccuracy = accuracy(bottomRightX, bottomRight[0], bottomRightY, bottomRight[1])
+			
+				print("calibrating bottom right")
+				break
+		
+		#print("finished/not calibrating")
+		
+		'''SENSORS: WHICH CIRCLE HAS THE PUPIL'S ATTENTION?'''
+  
+		'''
+		# TOP LEFT SENSOR
+		if ( pupilX >= topLeft[0] and pupilY >= topLeft[1] ):
+			print("DETECTED: top left")
 
-    left_pupil = gaze.pupil_left_coords()
-    right_pupil = gaze.pupil_right_coords()
-    
-    pupilX = gaze.pupil_right_width()
-    pupilY = gaze.pupil_right_height()
-    
-    topLeft = (10,10)
-    topRight = (1270, 10)
-    bottomLeft = (10, 710)
-    bottomRight = (1270,710)
-    
-    origin = right_pupil
-    originX = pupilX
-    originY = pupilY
-    
-    print("STARTING calibration with center coordinates", origin)
-        
-    '''
-    boxTopLeftX = originX - 15
-    boxTopLeftY = originY - 15
-    boxTopLeft = (boxTopLeftX, boxTopLeftY)
+		# TOP RIGHT SENSOR
+		while ( pupilX >= topRight[0] and pupilY <= topRight[1] ):
+			print("DETECTED: top right")
 
-    boxTopRightX = originX + 15
-    boxTopRightY = originY - 15
-    boxTopRight = (boxTopRightX, boxTopRightY)
+		# BOTTOM LEFT SENSOR
+		while ( pupilX <= bottomLeft[0] and pupilY >= bottomLeft[1] ):
+			print("DETECTED: bottom left")
 
-    boxBottomLeftX = originX - 15
-    boxBottomLeftY = originY + 15
-    boxBottomLeft = (boxTopLeftX, boxTopLeftY)
+		# BOTTOM RIGHT SENSOR
+		while ( pupilX <= bottomLeft[0] and pupilY >= bottomRight[1] ):
+			print("DETECTED: bottom right")
 
-    boxBottomRightX = originX + 15
-    boxBottomRightY = originY + 15
-    boxBottomRight = (boxBottomRightX, boxBottomRightY)
+		# CENTER SENSOR
+		while ( pupilX >= center[0] and pupilY <= center[1] ):
+			print("DETECTED: center")
+		'''
+	
+		if e.type == pygame.QUIT :
+			sys.exit()
+			
+		
+	
+	# draw frame
+	screen.blit(img, (0,0))
+	
+	pygame.display.flip()
+	# grab next frame	 
+	img = webcam.get_image()
+	
+	# draw the circles
+	draw_circle_TOP_LEFT()
+	draw_circle_TOP_RIGHT()
+	draw_circle_BOTTOM_LEFT()
+	draw_circle_BOTTOM_RIGHT()
+	draw_circle_CENTER() 
+	pygame.display.update()
+	
+	
+	
+	
+   
+		
+		
+	'''ONSCREEN TEXT'''
 
-    print("boxTopLeft: ", boxTopLeft)
-    print("boxTopRight: ", boxTopRight)
-    print("boxBottomLeft: ", boxBottomLeft)
-    print("boxBottomRight: ", boxBottomRight)
-    '''
+	'''
+	if gaze.is_blinking():
+		text = "Blinking"
+	elif gaze.is_right():
+		text = "Looking right"
+	elif gaze.is_left():
+		text = "Looking left"
+	elif gaze.is_center():
+		text = "Looking center"
+	'''
 
-    '''
-    if (pupilX <= boxTopLeftX) and (pupilY <= boxTopLeftY):
-        print("TOP LEFT")
+	
+	
+	#cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+	#cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
-    if (pupilX >= boxTopRightX) and (pupilY <= boxTopRightY):
-        print("TOP RIGHT")
-    
-    if (pupilX <= boxBottomLeftX) and (pupilY >= boxBottomLeftY):
-        print("BOTTOM LEFT")
+	#cv2.imshow("Demo", frame)
 
-    if (pupilX >= boxBottomRightX) and (pupilY >= boxBottomRightY):
-        print("BOTTOM RIGHT")
-    '''
-    
-    #cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    #cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+	if cv2.waitKey(1) == 27:
+		break
 
-    #cv2.imshow("Demo", frame)
-
-    if cv2.waitKey(1) == 27:
-        break
-    
-    
+print("ACCURACY:")
+print("center: ", centerAccuracy)
+print("topLeft: ", topLeftAccuracy)
+print("topRight: ", topRightAccuracy)
+print("bottomLeft: ", bottomLeftAccuracy)
+print("bottomRight: ", bottomRightAccuracy)
 
 eyecam.release()
 cv2.destroyAllWindows()
