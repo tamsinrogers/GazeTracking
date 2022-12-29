@@ -64,23 +64,23 @@ def draw_circle_CENTER():
 	pygame.draw.circle(screen, GREEN, center, circleSize)
 	
 def topLeftClicked(x, y):
-	if ( (x >= (topLeft[0]-circleSize) or x <= (topLeft[0]+circleSize)) and (y >= (topLeft[1]-circleSize) or y <= (topLeft[1]+circleSize))):
+	if ( (x >= (topLeft[0]-circleSize/2) and x <= (topLeft[0]+circleSize/2)) and (y >= (topLeft[1]-circleSize/2) and y <= (topLeft[1]+circleSize/2))):
 		return True
 		
 def bottomLeftClicked(x, y):
-	if ( (x >= (bottomLeft[0]-circleSize) or x <= (bottomLeft[0]+circleSize)) and (y >= (bottomLeft[1]-circleSize) or y <= (bottomLeft[1]+circleSize))):
+	if ( (x >= (bottomLeft[0]-circleSize/2) and x <= (bottomLeft[0]+circleSize/2)) and (y >= (bottomLeft[1]-circleSize/2) and y <= (bottomLeft[1]+circleSize/2))):
 		return True
 
 def topRightClicked(x, y):
-	if ( (x >= (topRight[0]-circleSize) or x <= (topRight[0]+circleSize)) and (y >= (topRight[1]-circleSize) or y <= (topRight[1]+circleSize))):
+	if ( (x >= (topRight[0]-circleSize/2) and x <= (topRight[0]+circleSize/2)) and (y >= (topRight[1]-circleSize/2) and y <= (topRight[1]+circleSize/2))):
 		return True
 		
 def bottomRightClicked(x, y):
-	if ( (x >= (bottomRight[0]-circleSize) or x <= (bottomRight[0]+circleSize)) and (y >= (bottomRight[1]-circleSize) or y <= (bottomRight[1]+circleSize))):
+	if ( (x >= (bottomRight[0]-circleSize/2) and x <= (bottomRight[0]+circleSize/2)) and (y >= (bottomRight[1]-circleSize/2) and y <= (bottomRight[1]+circleSize/2))):
 		return True
 
 def centerClicked(x, y):
-	if ( (x >= (center[0]-circleSize) or x <= (center[0]+circleSize)) and (y >= (center[1]-circleSize) or y <= (center[1]+circleSize))):
+	if ( (x >= (center[0]-circleSize/2) and x <= (center[0]+circleSize/2)) and (y >= (center[1]-circleSize/2) and y <= (center[1]+circleSize/2))):
 		return True
 		
 def accuracy(x1, x2, y1, y2):
@@ -90,6 +90,14 @@ def accuracy(x1, x2, y1, y2):
 	return totalDiff
 
 text = ""
+
+centerAccuracy = 0
+topLeftAccuracy = 0
+topRightAccuracy = 0
+bottomLeftAccuracy = 0
+bottomRightAccuracy = 0
+
+print("look at each circle and click one at a time")
 
 while True :
 
@@ -113,62 +121,55 @@ while True :
 	
 	mouseX, mouseY = pygame.mouse.get_pos()
 	
-	text = "look at each circle and click one at a time"
-	cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+	
+	#cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 	
 	for e in pygame.event.get() :
 	
-		if e.type == pygame.MOUSEBUTTONDOWN and centerClicked(mouseX, mouseY):
-			origin = right_pupil
-			originX = pupilX
-			originY = pupilY
-			centerAccuracy = accuracy(centerX, center[0], centerY, center[1])
-			print("STARTING calibration with center coordinates", origin)
+		if e.type == pygame.MOUSEBUTTONDOWN:
 			
-			text = "calibrating center"
-			cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+			if centerClicked(mouseX, mouseY):
+				origin = right_pupil
+				originX = pupilX
+				originY = pupilY
+				centerAccuracy = accuracy(originX, center[0], originY, center[1])
+
+				print("calibrating center")
+				break
 		
-		if e.type == pygame.MOUSEBUTTONDOWN and topLeftClicked(mouseX, mouseY):
-			topLeftX = pupilX
-			topLeftY = pupilY
-			topLeftAccuracy = accuracy(topLeftX, topLeft[0], topLeftY, topLeft[1])
+			if topLeftClicked(mouseX, mouseY):
+				topLeftX = pupilX
+				topLeftY = pupilY
+				topLeftAccuracy = accuracy(topLeftX, topLeft[0], topLeftY, topLeft[1])
 			
-			text = "calibrating top left"
-			cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+				print("calibrating top left")
+				break
 		
-		if e.type == pygame.MOUSEBUTTONDOWN and topRightClicked(mouseX, mouseY):
-			topRightX = pupilX
-			topRightY = pupilY
-			topRightAccuracy = accuracy(topRightX, topRight[0], topRightY, topRight[1])
+			if topRightClicked(mouseX, mouseY):
+				topRightX = pupilX
+				topRightY = pupilY
+				topRightAccuracy = accuracy(topRightX, topRight[0], topRightY, topRight[1])
 			
-			text = "calibrating top right"
-			cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+				print("calibrating top right")
+				break
 		
-		if e.type == pygame.MOUSEBUTTONDOWN and bottomLeftClicked(mouseX, mouseY):
-			bottomLeftX = pupilX
-			bottomLeftY = pupilY
-			bottomLeftAccuracy = accuracy(bottomLeftX, bottomLeft[0], bottomLeftY, bottomLeft[1])
+			if bottomLeftClicked(mouseX, mouseY):
+				bottomLeftX = pupilX
+				bottomLeftY = pupilY
+				bottomLeftAccuracy = accuracy(bottomLeftX, bottomLeft[0], bottomLeftY, bottomLeft[1])
 			
-			text = "calibrating bottom left"
-			cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+				print("calibrating bottom left")
+				break
 		
-		if e.type == pygame.MOUSEBUTTONDOWN and bottomRightClicked(mouseX, mouseY):
-			bottomRightX = pupilX
-			bottomRightY = pupilY
-			bottomRightAccuracy = accuracy(bottomRightX, bottomRight[0], bottomRightY, bottomRight[1])
+			if bottomRightClicked(mouseX, mouseY):
+				bottomRightX = pupilX
+				bottomRightY = pupilY
+				bottomRightAccuracy = accuracy(bottomRightX, bottomRight[0], bottomRightY, bottomRight[1])
 			
-			text = "calibrating bottom right"
-			cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+				print("calibrating bottom right")
+				break
 		
-		text = "finished/not calibrating"
-		cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-		
-		print("ACCURACY:")
-		print("center: ", centerAccuracy)
-		print("topLeft: ", topLeftAccuracy)
-		print("topRight: ", topRightAccuracy)
-		print("bottomLeft: ", bottomLeftAccuracy)
-		print("bottomRight: ", bottomRightAccuracy)
+		#print("finished/not calibrating")
 		
 		'''SENSORS: WHICH CIRCLE HAS THE PUPIL'S ATTENTION?'''
   
@@ -242,7 +243,13 @@ while True :
 
 	if cv2.waitKey(1) == 27:
 		break
-	
+
+print("ACCURACY:")
+print("center: ", centerAccuracy)
+print("topLeft: ", topLeftAccuracy)
+print("topRight: ", topRightAccuracy)
+print("bottomLeft: ", bottomLeftAccuracy)
+print("bottomRight: ", bottomRightAccuracy)
 
 eyecam.release()
 cv2.destroyAllWindows()
