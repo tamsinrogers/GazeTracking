@@ -47,11 +47,19 @@ center = (WIDTH/2,HEIGHT/2)
 
 circleSize = 20
 
+boxTopLeft = (WIDTH/4, HEIGHT/4)
+boxBottomLeft = (WIDTH/4 , HEIGHT/4 * 3)
+boxTopRight = (WIDTH/4 * 3, HEIGHT/4)
+boxBottomRight = (WIDTH/4 * 3, HEIGHT/4 * 3)
+
+scale = boxTopLeft[0] / topLeft[0]
+print(scale)
+
 def draw_box():
-	pygame.draw.line(screen, WHITE, (WIDTH/4, HEIGHT/4), (WIDTH/4 * 3, HEIGHT/4))
-	pygame.draw.line(screen, WHITE, (WIDTH/4, HEIGHT/4), (WIDTH/4 , HEIGHT/4 * 3))
-	pygame.draw.line(screen, WHITE, (WIDTH/4, HEIGHT/4 * 3), (WIDTH/4 * 3, HEIGHT/4 * 3))
-	pygame.draw.line(screen, WHITE, (WIDTH/4 * 3, HEIGHT/4), (WIDTH/4 * 3, HEIGHT/4 * 3))
+	pygame.draw.line(screen, WHITE, boxTopLeft, boxTopRight)
+	pygame.draw.line(screen, WHITE, boxTopLeft, boxBottomLeft)
+	pygame.draw.line(screen, WHITE, boxBottomLeft, boxBottomRight)
+	pygame.draw.line(screen, WHITE, boxTopRight, boxBottomRight)
 
 def draw_circle_TOP_LEFT():
 	pygame.draw.circle(screen, GREEN, topLeft, circleSize)
@@ -90,6 +98,9 @@ def centerClicked(x, y):
 		
 def accuracy(x1, x2, y1, y2):
 
+	x2 = x2 * scale
+	y2 = y2 * scale
+
 	x = abs(((x1 - x2) / x1) * 100)
 	y = abs(((y1 - y2) / y1) * 100)
 	
@@ -105,6 +116,7 @@ topRightAccuracy = 0
 bottomLeftAccuracy = 0
 bottomRightAccuracy = 0
 
+print("POSITION HEAD WITHIN CENTER SQUARE")
 print("TO CALIBRATE: look at and click on each circle one at a time")
 
 while True :
@@ -124,8 +136,10 @@ while True :
 	# include these values again so they are continuously updated
 	left_pupil = gaze.pupil_left_coords()
 	right_pupil = gaze.pupil_right_coords() # these are the coordinates ON THE SCREEN
-	pupilX = gaze.pupil_right_width()
-	pupilY = gaze.pupil_right_height()
+	
+	# scale to get info about coordinates relative to where person is looking
+	pupilX = gaze.pupil_right_width() 
+	pupilY = gaze.pupil_right_height() 
 	
 	mouseX, mouseY = pygame.mouse.get_pos()
 	
@@ -137,40 +151,40 @@ while True :
 			
 			if centerClicked(mouseX, mouseY):
 				origin = right_pupil
-				originX = pupilX
-				originY = pupilY
+				originX = pupilX * scale
+				originY = pupilY * scale
 				centerAccuracy = accuracy(originX, center[0], originY, center[1])
 
 				print("calibrating center")
 				break
 		
 			if topLeftClicked(mouseX, mouseY):
-				topLeftX = pupilX
-				topLeftY = pupilY
+				topLeftX = pupilX * scale
+				topLeftY = pupilY * scale
 				topLeftAccuracy = accuracy(topLeftX, topLeft[0], topLeftY, topLeft[1])
 			
 				print("calibrating top left")
 				break
 		
 			if topRightClicked(mouseX, mouseY):
-				topRightX = pupilX
-				topRightY = pupilY
+				topRightX = pupilX * scale
+				topRightY = pupilY * scale
 				topRightAccuracy = accuracy(topRightX, topRight[0], topRightY, topRight[1])
 			
 				print("calibrating top right")
 				break
 		
 			if bottomLeftClicked(mouseX, mouseY):
-				bottomLeftX = pupilX
-				bottomLeftY = pupilY
+				bottomLeftX = pupilX * scale
+				bottomLeftY = pupilY * scale
 				bottomLeftAccuracy = accuracy(bottomLeftX, bottomLeft[0], bottomLeftY, bottomLeft[1])
 			
 				print("calibrating bottom left")
 				break
 		
 			if bottomRightClicked(mouseX, mouseY):
-				bottomRightX = pupilX
-				bottomRightY = pupilY
+				bottomRightX = pupilX * scale
+				bottomRightY = pupilY * scale
 				bottomRightAccuracy = accuracy(bottomRightX, bottomRight[0], bottomRightY, bottomRight[1])
 			
 				print("calibrating bottom right")
