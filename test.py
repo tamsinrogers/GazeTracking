@@ -86,7 +86,11 @@ def centerClicked(x, y):
 def accuracy(x1, x2, y1, y2):
 	xDiff = abs(x1-x2)
 	yDiff = abs(y1-y2)
-	totalDiff = (xDiff, yDiff)
+	totalDiff = (xDiff + yDiff) / 2
+	
+	
+	#((hours[1] - hours[0])/hours[1] * 100)
+	
 	return totalDiff
 
 text = ""
@@ -196,9 +200,19 @@ while True :
 		'''
 	
 		if e.type == pygame.QUIT :
+			print("ACCURACY:")
+			print("center: ", centerAccuracy)
+			print("topLeft: ", topLeftAccuracy)
+			print("topRight: ", topRightAccuracy)
+			print("bottomLeft: ", bottomLeftAccuracy)
+			print("bottomRight: ", bottomRightAccuracy)
+
+			acc = (topLeftAccuracy + topRightAccuracy + bottomLeftAccuracy + bottomRightAccuracy + centerAccuracy) / 5
+			print("TOTAL ACCURACY: ", acc)
+			
 			sys.exit()
 			
-		
+
 	
 	# draw frame
 	screen.blit(img, (0,0))
@@ -244,13 +258,10 @@ while True :
 	if cv2.waitKey(1) == 27:
 		break
 
-print("ACCURACY:")
-print("center: ", centerAccuracy)
-print("topLeft: ", topLeftAccuracy)
-print("topRight: ", topRightAccuracy)
-print("bottomLeft: ", bottomLeftAccuracy)
-print("bottomRight: ", bottomRightAccuracy)
+
 
 eyecam.release()
 cv2.destroyAllWindows()
+
+
 
