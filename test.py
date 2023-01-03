@@ -21,15 +21,14 @@ overlay = pygame.image.load("overlay.png")		# to be replaced by instruction scre
 #overlay = pygame.image.load('overlay.bmp')
 
 cameras = pygame.camera.list_cameras()
-
-print ("Using camera %s ..." % cameras[0])
-
 webcam = pygame.camera.Camera(cameras[0])
 
 webcam.start()
 
 # grab first frame
-img = webcam.get_image()
+ogIMG = webcam.get_image()
+scaledIMG = pygame.transform.scale(ogIMG, (500, 500))
+img = pygame.transform.flip(scaledIMG, True, False)
 
 WIDTH = img.get_width()
 HEIGHT = img.get_height()
@@ -47,6 +46,12 @@ bottomRight = (WIDTH-50,HEIGHT-50)
 center = (WIDTH/2,HEIGHT/2)
 
 circleSize = 20
+
+def draw_box():
+	pygame.draw.line(screen, WHITE, (WIDTH/4, HEIGHT/4), (WIDTH/4 * 3, HEIGHT/4))
+	pygame.draw.line(screen, WHITE, (WIDTH/4, HEIGHT/4), (WIDTH/4 , HEIGHT/4 * 3))
+	pygame.draw.line(screen, WHITE, (WIDTH/4, HEIGHT/4 * 3), (WIDTH/4 * 3, HEIGHT/4 * 3))
+	pygame.draw.line(screen, WHITE, (WIDTH/4 * 3, HEIGHT/4), (WIDTH/4 * 3, HEIGHT/4 * 3))
 
 def draw_circle_TOP_LEFT():
 	pygame.draw.circle(screen, GREEN, topLeft, circleSize)
@@ -123,7 +128,6 @@ while True :
 	pupilY = gaze.pupil_right_height()
 	
 	mouseX, mouseY = pygame.mouse.get_pos()
-	
 	
 	#cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 	
@@ -224,6 +228,7 @@ while True :
 	draw_circle_BOTTOM_LEFT()
 	draw_circle_BOTTOM_RIGHT()
 	draw_circle_CENTER() 
+	draw_box()
 	pygame.display.update()
 	
 
