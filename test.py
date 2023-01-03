@@ -44,7 +44,7 @@ topLeft = (50,50)
 topRight = (WIDTH-50,50)
 bottomLeft = (50,HEIGHT-50)
 bottomRight = (WIDTH-50,HEIGHT-50)
-center = pos=(WIDTH/2,HEIGHT/2)
+center = (WIDTH/2,HEIGHT/2)
 
 circleSize = 20
 
@@ -84,14 +84,13 @@ def centerClicked(x, y):
 		return True
 		
 def accuracy(x1, x2, y1, y2):
-	xDiff = abs(x1-x2)
-	yDiff = abs(y1-y2)
-	totalDiff = (xDiff + yDiff) / 2
+
+	x = abs(((x1 - x2) / x1) * 100)
+	y = abs(((y1 - y2) / y1) * 100)
 	
+	total = (x+y)/2
 	
-	#((hours[1] - hours[0])/hours[1] * 100)
-	
-	return totalDiff
+	return total
 
 text = ""
 
@@ -101,7 +100,7 @@ topRightAccuracy = 0
 bottomLeftAccuracy = 0
 bottomRightAccuracy = 0
 
-print("look at each circle and click one at a time")
+print("TO CALIBRATE: look at and click on each circle one at a time")
 
 while True :
 
@@ -211,8 +210,6 @@ while True :
 			print("TOTAL ACCURACY: ", acc)
 			
 			sys.exit()
-			
-
 	
 	# draw frame
 	screen.blit(img, (0,0))
@@ -229,12 +226,7 @@ while True :
 	draw_circle_CENTER() 
 	pygame.display.update()
 	
-	
-	
-	
-   
-		
-		
+
 	'''ONSCREEN TEXT'''
 
 	'''
@@ -249,7 +241,6 @@ while True :
 	'''
 
 	
-	
 	#cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 	#cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
 
@@ -257,7 +248,6 @@ while True :
 
 	if cv2.waitKey(1) == 27:
 		break
-
 
 
 eyecam.release()
