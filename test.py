@@ -76,6 +76,11 @@ def draw_circle_BOTTOM_RIGHT():
 def draw_circle_CENTER():
 	pygame.draw.circle(screen, GREEN, center, circleSize)
 	
+def draw_circle_FIXATION(x,y):
+	if x and y:
+		pos = (x,y)
+		pygame.draw.circle(screen, WHITE, pos, circleSize)
+	
 def topLeftClicked(x, y):
 	if ( (x >= (topLeft[0]-circleSize/2) and x <= (topLeft[0]+circleSize/2)) and (y >= (topLeft[1]-circleSize/2) and y <= (topLeft[1]+circleSize/2))):
 		return True
@@ -140,6 +145,9 @@ while True :
 	# scale to get info about coordinates relative to where person is looking
 	pupilX = gaze.pupil_right_width() 
 	pupilY = gaze.pupil_right_height() 
+	
+	
+	draw_circle_FIXATION(pupilX, pupilY)
 	
 	mouseX, mouseY = pygame.mouse.get_pos()
 	
