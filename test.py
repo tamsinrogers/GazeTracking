@@ -53,7 +53,6 @@ boxTopRight = (WIDTH/4 * 3, HEIGHT/4)
 boxBottomRight = (WIDTH/4 * 3, HEIGHT/4 * 3)
 
 scale = boxTopLeft[0] / topLeft[0]
-print(scale)
 
 def draw_box():
 	pygame.draw.line(screen, WHITE, boxTopLeft, boxTopRight)
@@ -146,8 +145,6 @@ while True :
 	pupilX = gaze.pupil_right_width() 
 	pupilY = gaze.pupil_right_height() 
 	
-	print(pupilX, pupilY)
-	draw_circle_FIXATION(pupilX, pupilY)
 	
 	mouseX, mouseY = pygame.mouse.get_pos()
 	
@@ -251,7 +248,9 @@ while True :
 	draw_circle_BOTTOM_RIGHT()
 	draw_circle_CENTER() 
 	draw_box()
+	
 	draw_circle_FIXATION(pupilX, pupilY)
+	
 	pygame.display.update()
 	
 
