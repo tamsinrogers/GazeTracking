@@ -1,10 +1,16 @@
-# Gaze Tracking
+# A Simple Webcam-based Python Eye Tracker
+# Based on [github.com/antoinelame/GazeTracking](github.com/antoinelame/GazeTracking)
 
 ![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)
 ![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 [![GitHub stars](https://img.shields.io/github/stars/antoinelame/GazeTracking.svg?style=social)](https://github.com/antoinelame/GazeTracking/stargazers)
 
+This is a Python (2 and 3) library that provides a **webcam-based eye tracking system**. It gives you the exact position of the pupils and the gaze direction, in real time.
+
+[![Demo](https://i.imgur.com/WNqgQkO.gif)](https://youtu.be/YEZMk1P0-yw)
+
+_🚀 Quick note: I'm looking for job opportunities as a software developer, for exciting projects in ambitious companies. Anywhere in the world. Send me an email!_
 
 ## Installation
 
@@ -156,6 +162,11 @@ frame = gaze.annotated_frame()
 
 Returns the main frame with pupils highlighted.
 
+## You want to help?
+
+Your suggestions, bugs reports and pull requests are welcome and appreciated. You can also starring ⭐️ the project!
+
+If the detection of your pupils is not completely optimal, you can send me a video sample of you looking in different directions. I would use it to improve the algorithm.
 
 ## Licensing
 
