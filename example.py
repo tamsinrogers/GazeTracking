@@ -50,23 +50,12 @@ while True:
 
     dim = (window_width, window_height)
     frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+    frame = cv2.flip(frame, 1)
     cv2.imshow("Demo", frame)
-
-    # if gaze.is_blinking():
-    #     text = "Blinking"
-    # elif gaze.is_right():
-    #     text = "Looking right"
-    # elif gaze.is_left():
-    #     text = "Looking left"
-    # elif gaze.is_center():
-    #     text = "Looking center"
-
-    #cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
 
     left_pupil = gaze.pupil_left_coords()
     right_pupil = gaze.pupil_right_coords()
-    #cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-    #cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+
 
     # Radius of circle
     fixation_radius = 10
@@ -85,8 +74,8 @@ while True:
     
     ''' CALIBRATION POINTS '''
     
-    #pupil1 = get_pupil_in_time(launch_time, 2, 4, gaze.pupil_right_coords())
-
+    cv2.putText(frame, "CALIBRATION", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (250,250,250), 1)
+    
     # top left
     point1 = (50, 50)
     if within_time(launch_time, duration, duration*2):
@@ -172,6 +161,13 @@ while True:
             # predict display x, y
             display_x = reg_x.predict(np.array([list(gaze.pupil_right_coords())]))
             display_y = reg_y.predict(np.array([list(gaze.pupil_right_coords())]))
+            
+            print(display_x, display_y)
+            
+            xacc = ((reg_x - display_x )/ display_x) * 100
+            print("x accuracy: ", xacc)
+            yacc = ((reg_y - display_y )/ display_y) * 100
+            print("y accuracy: ", yacc)
 
         # gaze point
         fixation = (int(display_x), int(display_y))
@@ -183,7 +179,7 @@ while True:
 
     cv2.namedWindow("Demo", cv2.WND_PROP_FULLSCREEN)    
     cv2.setWindowProperty("Demo", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-    frame = cv2.flip(frame, 1)
+    
     cv2.imshow("Demo", frame)
 
     window_x, window_y, window_width, window_height = cv2.getWindowImageRect('Demo')
