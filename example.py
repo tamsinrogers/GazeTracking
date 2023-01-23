@@ -167,7 +167,6 @@ while True:
 		fixation = (int(display_x), int(display_y))
 
 		# draw x, y on screen
-		# Using cv2.circle() method
 		cv2.circle(frame, fixation, fixation_radius, fixation_color, fixation_thickness)
 	
 		''' VALIDATION PHASE '''
