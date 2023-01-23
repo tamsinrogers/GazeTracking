@@ -146,7 +146,7 @@ while True:
 		not_calibrated = False
 		
 		x = np.array([list(pupil1), list(pupil2), list(pupil3), list(pupil4), list(pupil5), list(pupil6), list(pupil7), list(pupil8), list(pupil9), list(pupil10)])
-		x_targets = np.array([point1[1], point2[1], point3[1], point4[1],point5[1], point6[1], point7[1], point8[1], point9[1], point10[1]])
+		x_targets = np.array([point1[0], point2[0], point3[0], point4[0],point5[0], point6[0], point7[0], point8[0], point9[0], point10[0]])
 
 		y = np.array([list(pupil1), list(pupil2), list(pupil3), list(pupil4), list(pupil5), list(pupil6), list(pupil7), list(pupil8), list(pupil9), list(pupil10)])
 		y_targets = np.array([point1[1], point2[1], point3[1], point4[1],point5[1], point6[1], point7[1], point8[1], point9[1], point10[1]])
@@ -172,63 +172,63 @@ while True:
 	
 		''' VALIDATION PHASE '''
 	
-		cv2.putText(frame, "CALIBRATION ✅ ", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
-		cv2.putText(frame, "VALIDATION", (90, 150), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+		cv2.putText(frame, "CALIBRATION COMPLETE", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+		cv2.putText(frame, "VALIDATION", (90, 200), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 		
 		# draw the circles
 		
 		# top left
 		point1 = (50, 50)
-		if within_time(launch_time, duration*11, duration*12):
+		if within_time(launch_time, duration*15, duration*16):
 			cv2.circle(frame, point1, calibration_radius, calibration_color, calibration_thickness)
 			pupil1 = gaze.pupil_right_coords()
 
 		# top right
 		point2 = ( window_width - 50, 50)
-		if within_time(launch_time, duration*12, duration*13):
+		if within_time(launch_time, duration*16, duration*17):
 			cv2.circle(frame, point2, calibration_radius, calibration_color, calibration_thickness)
 			pupil2 = gaze.pupil_right_coords()
 
 		# bottom right
 		point3 = ( window_width - 50, window_height - 50)
-		if within_time(launch_time, duration*13, duration*14):
+		if within_time(launch_time, duration*17, duration*18):
 			cv2.circle(frame, point3, calibration_radius, calibration_color, calibration_thickness)
 			pupil3 = gaze.pupil_right_coords()
 
 		# bottom left
 		point4 = ( 50, window_height - 50)
-		if within_time(launch_time, duration*14, duration*15):
+		if within_time(launch_time, duration*18, duration*19):
 			cv2.circle(frame, point4, calibration_radius, calibration_color, calibration_thickness)
 			pupil4 = gaze.pupil_right_coords()
 
 		# center
 		point5 = ( window_width//2, window_height//2)
-		if within_time(launch_time, duration*15, duration*16):
+		if within_time(launch_time, duration*19, duration*20):
 			cv2.circle(frame, point5, calibration_radius, calibration_color, calibration_thickness)
 			pupil5 = gaze.pupil_right_coords()
 		
 		point6 = (window_width//2, window_height//4)
-		if within_time(launch_time, duration*16, duration*17):
+		if within_time(launch_time, duration*20, duration*21):
 			cv2.circle(frame, point6, calibration_radius, calibration_color, calibration_thickness)
 			pupil6 = gaze.pupil_right_coords()
 
 		point7 = ( window_width//2, (window_height//4)*3)
-		if within_time(launch_time, duration*17, duration*18):
+		if within_time(launch_time, duration*21, duration*22):
 			cv2.circle(frame, point7, calibration_radius, calibration_color, calibration_thickness)
 			pupil7 = gaze.pupil_right_coords()
 
 		point8 = ( window_width//4, (window_height//4)*3)
-		if within_time(launch_time, duration*18, duration*19):
+		if within_time(launch_time, duration*23, duration*24):
 			cv2.circle(frame, point8, calibration_radius, calibration_color, calibration_thickness)
 			pupil8 = gaze.pupil_right_coords()
 
 		point9 = ( (window_width//4)*3, window_height//4)
-		if within_time(launch_time, duration*19, duration*20):
+		if within_time(launch_time, duration*24, duration*25):
 			cv2.circle(frame, point9, calibration_radius, calibration_color, calibration_thickness)
 			pupil9 = gaze.pupil_right_coords()
 
 		point10 = ( (window_width//4)*3, (window_height//4)*3)
-		if within_time(launch_time, duration*10, duration*11):
+		if within_time(launch_time, duration*25, duration*26):
 			cv2.circle(frame, point10, calibration_radius, calibration_color, calibration_thickness)
 			pupil10 = gaze.pupil_right_coords()
 
@@ -252,6 +252,8 @@ while True:
 			dist = np.linalg.norm(actual - validation)
 		
 			print("EUCLEADIAN DISTANCE: ", dist)
+			#acc = ((0-dist)/dist) * 100
+			#print("ACCURACY: ", acc)
 
 
 	cv2.namedWindow("Demo", cv2.WND_PROP_FULLSCREEN)	
