@@ -222,17 +222,17 @@ while True:
 			pupil7 = gaze.pupil_right_coords()
 
 		point8 = ( window_width//4, (window_height//4)*3)
-		if within_time(launch_time, duration*23, duration*24):
+		if within_time(launch_time, duration*22, duration*23):
 			cv2.circle(frame, point8, calibration_radius, calibration_color, calibration_thickness)
 			pupil8 = gaze.pupil_right_coords()
 
 		point9 = ( (window_width//4)*3, window_height//4)
-		if within_time(launch_time, duration*24, duration*25):
+		if within_time(launch_time, duration*23, duration*24):
 			cv2.circle(frame, point9, calibration_radius, calibration_color, calibration_thickness)
 			pupil9 = gaze.pupil_right_coords()
 
 		point10 = ( (window_width//4)*3, (window_height//4)*3)
-		if within_time(launch_time, duration*25, duration*26):
+		if within_time(launch_time, duration*24, duration*25):
 			cv2.circle(frame, point10, calibration_radius, calibration_color, calibration_thickness)
 			pupil10 = gaze.pupil_right_coords()
 
@@ -245,22 +245,23 @@ while True:
 			not_validated = True
 			launch_time = time.time()
 
-		cv2.putText(frame, "VALIDATION COMPLETE", (90, 340), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
-		cv2.putText(frame, "CALCULATING ACCURACY", (90, 410), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 
 		# calculate euclidean distance between points
-		if not_validated and within_time(launch_time, duration*11, duration*12):
+		if not_validated and within_time(launch_time, duration*26, duration*40):
 			not_validated = False
-		
-			actual = np.array([ list(pupil1), list(pupil2), list(pupil3), list(pupil4), list(pupil5), list(pupil6), list(pupil7), list(pupil8), list(pupil9), list(pupil10) ])
-			validation = np.array([ list(point1), list(point2), list(point3), list(point4), list(point5), list(point6), list(point7), list(point8), list(point9), list(point10) ])
 			
-			dist = np.linalg.norm(actual - validation)
+			cv2.putText(frame, "VALIDATION COMPLETE", (90, 340), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+			cv2.putText(frame, "CALCULATING ACCURACY", (90, 410), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+		
+			experimental = np.array([ list(pupil1), list(pupil2), list(pupil3), list(pupil4), list(pupil5), list(pupil6), list(pupil7), list(pupil8), list(pupil9), list(pupil10) ])
+			actual = np.array([ list(point1), list(point2), list(point3), list(point4), list(point5), list(point6), list(point7), list(point8), list(point9), list(point10) ])
+			
+			dist = np.linalg.norm(actual - experimental)
 			#dist = math.dist(actual, validation)
 			
 			print("EUCLIDEAN DISTANCE AS CALCULATED FROM ACTUAL/VALIDATION ARRAYS: ", dist)
 			
-			distances = np.array([])
+			distances = []
 			
 			f = name + ".csv"
 			
@@ -271,20 +272,19 @@ while True:
 				writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy (Euclidean Distance)"])
 			
 				# write data to csv
-				for i in range(10):
+				for i in range(len(actualPoints)):
 																	# write set of points to text file
-					d = math.dist(actual[i], validation[i])			# calculate dist for each set of points
-					np.append(distances, d)							# add to total distances
-					writer.writerow([actual[i], validation[i], d])	# write to csv 
+					d = math.dist(actual[i], experimental[i])			# calculate dist for each set of points
+					distances.append(d)						# add to total distances
+					writer.writerow([actual[i], experimental[i], d])	# write to csv 
 					
 														
 				# average euclidean distance calculation
-				avgDist = np.mean(distances)
+				avgDist = sum(distances)/(len(distances))
 				writer.writerow(["AVG", "AVG", avgDist])
 				print("AVERAGE EUCLIDEAN DISTANCE AS CALCULATED FROM EACH POINT: ", avgDist)
+				
 
-			webcam.release()
-			cv2.destroyAllWindows()
 
 	cv2.namedWindow("Demo", cv2.WND_PROP_FULLSCREEN)	
 	cv2.setWindowProperty("Demo", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
