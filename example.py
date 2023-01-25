@@ -4,11 +4,16 @@ Check the README.md for complete documentation.
 """
 
 import cv2
+import csv
 from gaze_tracking import GazeTracking
 import time
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import keyboard
+import math
+
+print("enter participant name: ")
+name = input()
 
 def within_time(launch_time, start, end):
 
@@ -75,7 +80,7 @@ while True:
 	
 	''' CALIBRATION PHASE '''
 	
-	cv2.putText(frame, "CALIBRATION", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+	cv2.putText(frame, "ENTERING CALIBRATION PHASE", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 	
 	# top left
 	point1 = (50, 50)
@@ -171,8 +176,8 @@ while True:
 	
 		''' VALIDATION PHASE '''
 	
-		cv2.putText(frame, "CALIBRATION COMPLETE", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
-		cv2.putText(frame, "VALIDATION", (90, 200), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+		cv2.putText(frame, "CALIBRATION COMPLETE", (90, 200), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+		cv2.putText(frame, "ENTERING VALIDATION PHASE", (90, 270), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 		
 		# draw the circles
 		
@@ -240,8 +245,10 @@ while True:
 			not_validated = True
 			launch_time = time.time()
 
+		cv2.putText(frame, "VALIDATION COMPLETE", (90, 340), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
+		cv2.putText(frame, "CALCULATING ACCURACY", (90, 410), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 
-		# calculate validation
+		# calculate euclidean distance between points
 		if not_validated and within_time(launch_time, duration*11, duration*12):
 			not_validated = False
 		
@@ -249,11 +256,35 @@ while True:
 			validation = np.array([ list(point1), list(point2), list(point3), list(point4), list(point5), list(point6), list(point7), list(point8), list(point9), list(point10) ])
 			
 			dist = np.linalg.norm(actual - validation)
-		
-			print("EUCLEADIAN DISTANCE: ", dist)
-			#acc = ((0-dist)/dist) * 100
-			#print("ACCURACY: ", acc)
+			#dist = math.dist(actual, validation)
+			
+			print("EUCLIDEAN DISTANCE AS CALCULATED FROM ACTUAL/VALIDATION ARRAYS: ", dist)
+			
+			distances = np.array([])
+			
+			f = name + ".csv"
+			
+			with open(f, 'w', newline='') as file:
+				csvreader = csv.reader(file)
+				writer = csv.writer(file)
+			
+				writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy (Euclidean Distance)"])
+			
+				# write data to csv
+				for i in range(10):
+																	# write set of points to text file
+					d = math.dist(actual[i], validation[i])			# calculate dist for each set of points
+					np.append(distances, d)							# add to total distances
+					writer.writerow([actual[i], validation[i], d])	# write to csv 
+					
+														
+				# average euclidean distance calculation
+				avgDist = np.mean(distances)
+				writer.writerow(["AVG", "AVG", avgDist])
+				print("AVERAGE EUCLIDEAN DISTANCE AS CALCULATED FROM EACH POINT: ", avgDist)
 
+			webcam.release()
+			cv2.destroyAllWindows()
 
 	cv2.namedWindow("Demo", cv2.WND_PROP_FULLSCREEN)	
 	cv2.setWindowProperty("Demo", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
