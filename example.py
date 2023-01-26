@@ -14,6 +14,8 @@ import math
 
 print("enter participant name: ")
 name = input()
+print("enter gaze prediction type (L = linear regression, N = neural network)")
+type = input()
 
 def within_time(launch_time, start, end):
 
@@ -156,17 +158,34 @@ while True:
 		y = np.array([list(pupil1), list(pupil2), list(pupil3), list(pupil4), list(pupil5), list(pupil6), list(pupil7), list(pupil8), list(pupil9), list(pupil10)])
 		y_targets = np.array([point1[1], point2[1], point3[1], point4[1],point5[1], point6[1], point7[1], point8[1], point9[1], point10[1]])
 
-		# run regression 
-		reg_x = LinearRegression().fit(x, x_targets)
-		reg_y = LinearRegression().fit(y, y_targets)
+		if type == "l":
+			# run regression 
+			reg_x = LinearRegression().fit(x, x_targets)
+			reg_y = LinearRegression().fit(y, y_targets)
+		
+		'''
+		elif type == "n":
+			# run neural network calculations
+		
+			net_x =
+			net_y =
+		'''
 
 	# gaze estimation after calibration
 	if not not_calibrated:
 
 		if gaze.pupil_right_coords() is not None:
 			# predict display x, y
-			display_x = reg_x.predict(np.array([list(gaze.pupil_right_coords())]))
-			display_y = reg_y.predict(np.array([list(gaze.pupil_right_coords())]))
+			
+			if type == "l":
+				display_x = reg_x.predict(np.array([list(gaze.pupil_right_coords())]))
+				display_y = reg_y.predict(np.array([list(gaze.pupil_right_coords())]))
+			
+			'''
+			elif type == "n":
+				display_x =
+				display_y =
+			'''
 
 		# gaze point
 		fixation = (int(display_x), int(display_y))
@@ -256,11 +275,6 @@ while True:
 			experimental = np.array([ list(pupil1), list(pupil2), list(pupil3), list(pupil4), list(pupil5), list(pupil6), list(pupil7), list(pupil8), list(pupil9), list(pupil10) ])
 			actual = np.array([ list(point1), list(point2), list(point3), list(point4), list(point5), list(point6), list(point7), list(point8), list(point9), list(point10) ])
 			
-			dist = np.linalg.norm(actual - experimental)
-			#dist = math.dist(actual, validation)
-			
-			print("EUCLIDEAN DISTANCE AS CALCULATED FROM ACTUAL/VALIDATION ARRAYS: ", dist)
-			
 			distances = []
 			
 			f = name + ".csv"
@@ -269,7 +283,7 @@ while True:
 				csvreader = csv.reader(file)
 				writer = csv.writer(file)
 			
-				writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy (Euclidean Distance)"])
+				writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy (Linear Regression)", "Accuracy (Neural Network)"])
 			
 				# write data to csv
 				for i in range(len(actualPoints)):
@@ -277,13 +291,10 @@ while True:
 					d = math.dist(actual[i], experimental[i])			# calculate dist for each set of points
 					distances.append(d)						# add to total distances
 					writer.writerow([actual[i], experimental[i], d])	# write to csv 
-					
 														
 				# average euclidean distance calculation
 				avgDist = sum(distances)/(len(distances))
 				writer.writerow(["AVG", "AVG", avgDist])
-				print("AVERAGE EUCLIDEAN DISTANCE AS CALCULATED FROM EACH POINT: ", avgDist)
-				
 
 
 	cv2.namedWindow("Demo", cv2.WND_PROP_FULLSCREEN)	
