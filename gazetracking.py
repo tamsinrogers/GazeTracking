@@ -29,6 +29,13 @@ from keras.losses import categorical_crossentropy
 print("enter participant name: ")
 name = input()
 
+f = name + ".csv"
+
+with open(f, 'w', newline='') as file:
+	csvreader = csv.reader(file)
+	writer = csv.writer(file)
+	writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy", "Emotion Detected"])
+
 print("training emotion detection model")
 
 mp_drawing = mp.solutions.drawing_utils
@@ -370,13 +377,7 @@ while True:
 
 				distances = []
 
-				accuracyFile = name + "_ACCURACY" + ".csv"
-
-				with open(accuracyFile, 'w', newline='') as file:
-					csvreader = csv.reader(file)
-					writer = csv.writer(file)
-
-					writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy", "Emotion Detected)"])
+				with open(f, 'w', newline='') as file:
 
 					# write data to csv
 					for i in range(len(actualPoints)):
