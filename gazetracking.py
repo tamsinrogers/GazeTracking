@@ -16,6 +16,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import pickle
+
 import keras
 import tensorflow
 from keras.layers import Flatten, Dense
@@ -106,7 +108,26 @@ def emotion(path):
 	input_arr = np.array([i])
 	input_arr.shape
 
-	pred = np.argmax(model.predict(input_arr))
+	'''
+	# pickle the model
+	model.deploy_model(description='model', file_name='neural.sav')
+	
+	# use pickle to load the model 
+	loaded_model = pickle.load(open("neural.sav", 'rb'))
+
+	# use the scaler to scale your data you want to input 
+	input_data = loaded_model['scaler'].transform([[1, 28, 0, 1, 30]])
+
+	# get the prediction 
+	loaded_model['model'].predict(input_data)[0][0]
+	'''
+	
+	pickle.dump(model, open(neural.sav, 'wb'))
+	loaded_model = pickle.load(open(neural.sav, 'rb'))
+	
+	
+	pred = np.argmax(loaded_model.predict(input_arr))
+	
 
 	print(f"{op[pred]}")
 
@@ -120,7 +141,7 @@ def within_time(launch_time, start, end):
 
 	return False
 
-
+'''
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
 
@@ -185,9 +206,10 @@ while True:
 		calibration_thickness = 15
 
 		# seconds
-		duration = 3
+		duration = 3 
+	
 
-		''' CALIBRATION PHASE '''
+		# CALIBRATION PHASE
 
 		cv2.putText(frame, "ENTERING CALIBRATION PHASE", (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 
@@ -285,7 +307,7 @@ while True:
 			# draw x, y on screen
 			cv2.circle(frame, fixation, fixation_radius, fixation_color, fixation_thickness)
 
-			''' VALIDATION PHASE '''
+			# VALIDATION PHASE
 
 			cv2.putText(frame, "CALIBRATION COMPLETE", (90, 200), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
 			cv2.putText(frame, "ENTERING VALIDATION PHASE", (90, 270), cv2.FONT_HERSHEY_DUPLEX, 0.9, (255,255,255), 1)
@@ -406,3 +428,4 @@ while True:
 
 webcam.release()
 cv2.destroyAllWindows()
+'''
