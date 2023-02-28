@@ -20,7 +20,6 @@ import keras
 import tensorflow
 from keras.layers import Flatten, Dense
 from keras.models import Model
-#from keras.preprocessing.image import ImageDataGenerator , img_to_array, load_img
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import img_to_array, load_img
 from keras.applications.mobilenet import MobileNet, preprocess_input 
@@ -277,15 +276,8 @@ while True:
 			if gaze.pupil_right_coords() is not None:
 				# predict display x, y
 
-				if type == "l":
-					display_x = reg_x.predict(np.array([list(gaze.pupil_right_coords())]))
-					display_y = reg_y.predict(np.array([list(gaze.pupil_right_coords())]))
-
-				'''
-				elif type == "n":
-					display_x =
-					display_y =
-				'''
+				display_x = reg_x.predict(np.array([list(gaze.pupil_right_coords())]))
+				display_y = reg_y.predict(np.array([list(gaze.pupil_right_coords())]))
 
 			# gaze point
 			fixation = (int(display_x), int(display_y))
