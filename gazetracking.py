@@ -17,6 +17,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import pickle
+import os
 
 import keras
 import tensorflow
@@ -26,6 +27,7 @@ from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.utils import img_to_array, load_img
 from keras.applications.mobilenet import MobileNet, preprocess_input 
 from keras.losses import categorical_crossentropy
+from keras.models import load_model
 
 print("enter participant name: ")
 name = input()
@@ -44,53 +46,63 @@ mp_face_mesh = mp.solutions.face_mesh
 
 drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
+def train():
+	# NEURAL NET TRAINING
 
-# NEURAL NET TRAINING
+	base_model = MobileNet( input_shape=(224,224,3), include_top= False )
 
-base_model = MobileNet( input_shape=(224,224,3), include_top= False )
-
-for layer in base_model.layers:
-  layer.trainable = False
+	for layer in base_model.layers:
+	  layer.trainable = False
 
 
-x = Flatten()(base_model.output)
-x = Dense(units=7 , activation='softmax' )(x)
+	x = Flatten()(base_model.output)
+	x = Dense(units=7 , activation='softmax' )(x)
 
-# creating our model.
-model = Model(base_model.input, x)
-model.compile(optimizer='adam', loss= categorical_crossentropy , metrics=['accuracy']  )
+	# creating our model.
+	model = Model(base_model.input, x)
+	model.compile(optimizer='adam', loss= categorical_crossentropy , metrics=['accuracy']  )
 
-# prepare data
-train_datagen = ImageDataGenerator(zoom_range = 0.2, shear_range = 0.2, horizontal_flip=True, rescale = 1./255)
-train_data = train_datagen.flow_from_directory(directory= "train", target_size=(224,224), batch_size=32,)
-train_data.class_indices
+	# prepare data
+	train_datagen = ImageDataGenerator(zoom_range = 0.2, shear_range = 0.2, horizontal_flip=True, rescale = 1./255)
+	train_data = train_datagen.flow_from_directory(directory= "train", target_size=(224,224), batch_size=32,)
+	train_data.class_indices
 
-val_datagen = ImageDataGenerator(rescale = 1./255 )
-val_data = val_datagen.flow_from_directory(directory= "train", target_size=(224,224), batch_size=32,)
+	val_datagen = ImageDataGenerator(rescale = 1./255 )
+	val_data = val_datagen.flow_from_directory(directory= "train", target_size=(224,224), batch_size=32,)
 
-# early stopping & model checkpoint
-from keras.callbacks import ModelCheckpoint, EarlyStopping
+	# early stopping & model checkpoint
+	from keras.callbacks import ModelCheckpoint, EarlyStopping
 
-# early stopping
-es = EarlyStopping(monitor='val_accuracy', min_delta= 0.01 , patience= 5, verbose= 1, mode='auto')
+	# early stopping
+	es = EarlyStopping(monitor='val_accuracy', min_delta= 0.01 , patience= 5, verbose= 1, mode='auto')
 
-# model check point
-mc = ModelCheckpoint(filepath="best_model.h5", monitor= 'val_accuracy', verbose= 1, save_best_only= True, mode = 'auto')
+	# model check point
+	mc = ModelCheckpoint(filepath="best_model.h5", monitor= 'val_accuracy', verbose= 1, save_best_only= True, mode = 'auto')
 
-# puting call back in a list 
-call_back = [es, mc]
+	# puting call back in a list 
+	call_back = [es, mc]
 
-hist = model.fit_generator(train_data, 
-						   steps_per_epoch= 10, 
-						   epochs= 30, 
-						   validation_data= val_data, 
-						   validation_steps= 8, 
-						   callbacks=[es,mc])
-						   
+	hist = model.fit_generator(train_data, 
+							   steps_per_epoch= 10, 
+							   epochs= 30, 
+							   validation_data= val_data, 
+							   validation_steps= 8, 
+							   callbacks=[es,mc])
 
+	pickle.dump(model, open("neural.sav", 'wb'))
+
+if os.path.exists("neural.sav"):
+	print("OPENING PICKLED MODEL")
+	loaded_model = pickle.load(open("neural.sav", 'rb'))	
+	
+else:
+	print("TRAINING FROM SCRATCH")
+	train()
+	
+	
 # Loading the best fit model 
-from keras.models import load_model
-model = load_model("best_model.h5")
+
+loaded_model = load_model("best_model.h5")
 
 # just to map o/p values 
 op = dict(zip( train_data.class_indices.values(), train_data.class_indices.keys()))
@@ -122,13 +134,7 @@ def emotion(path):
 	loaded_model['model'].predict(input_data)[0][0]
 	'''
 	
-	pickle.dump(model, open(neural.sav, 'wb'))
-	loaded_model = pickle.load(open(neural.sav, 'rb'))
-	
-	
 	pred = np.argmax(loaded_model.predict(input_arr))
-	
-
 	print(f"{op[pred]}")
 
 
