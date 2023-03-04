@@ -28,6 +28,7 @@ from tensorflow.keras.utils import img_to_array, load_img
 from keras.applications.mobilenet import MobileNet, preprocess_input 
 from keras.losses import categorical_crossentropy
 from keras.models import load_model
+import joblib
 
 print("enter participant name: ")
 name = input()
@@ -89,50 +90,31 @@ def train():
 							   validation_steps= 8, 
 							   callbacks=[es,mc])
 
-	pickle.dump(model, open("neural.sav", 'wb'))
-
-if os.path.exists("neural.sav"):
-	print("OPENING PICKLED MODEL")
-	loaded_model = pickle.load(open("neural.sav", 'rb'))	
+	#pickle.dump(model, open("neural.sav", 'wb'))
+	#joblib.dump(model.save_model(), "neural.pkl")
 	
-else:
+	# just to map o/p values 
+	op = dict(zip( train_data.class_indices.values(), train_data.class_indices.keys()))
+
+if not os.path.exists("best_model.h5"):
+
 	print("TRAINING FROM SCRATCH")
 	train()
 	
 	
 # Loading the best fit model 
-
 loaded_model = load_model("best_model.h5")
+	
 
-# just to map o/p values 
-op = dict(zip( train_data.class_indices.values(), train_data.class_indices.keys()))
 
 def emotion(path):
 
 	# path for the image to see if it predics correct class
-
-	#path = "test/happy/tovah.jpg"
-	#path = frame # or something like that
-	
 	img = load_img(path, target_size=(224,224) )
 
 	i = img_to_array(img)/255
 	input_arr = np.array([i])
 	input_arr.shape
-
-	'''
-	# pickle the model
-	model.deploy_model(description='model', file_name='neural.sav')
-	
-	# use pickle to load the model 
-	loaded_model = pickle.load(open("neural.sav", 'rb'))
-
-	# use the scaler to scale your data you want to input 
-	input_data = loaded_model['scaler'].transform([[1, 28, 0, 1, 30]])
-
-	# get the prediction 
-	loaded_model['model'].predict(input_data)[0][0]
-	'''
 	
 	pred = np.argmax(loaded_model.predict(input_arr))
 	print(f"{op[pred]}")
