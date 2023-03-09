@@ -8,8 +8,6 @@
 
 This is a Python (2 and 3) library that provides a **webcam-based eye tracking system**. It gives you the exact position of the pupils and the gaze direction, in real time.
 
-[![Demo](https://i.imgur.com/WNqgQkO.gif)](https://youtu.be/YEZMk1P0-yw)
-
 ## Installation
 
 Clone this project:
@@ -160,6 +158,7 @@ frame = gaze.annotated_frame()
 
 Returns the main frame with pupils highlighted.
 
-## Licensing
+### Emotion Detection
+<img width="559" alt="Screen Shot 2023-03-08 at 11 51 25 PM" src="https://user-images.githubusercontent.com/30237570/223921014-6d43330a-bd53-4b61-99ed-dd2649e7c124.png">
 
-This project is released by Antoine Lamé under the terms of the MIT Open Source License. View LICENSE for more information.
+
