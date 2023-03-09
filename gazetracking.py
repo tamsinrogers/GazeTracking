@@ -30,17 +30,13 @@ from keras.losses import categorical_crossentropy
 from keras.models import load_model
 import joblib
 
+from PIL import Image
+import glob
+
 print("enter participant name: ")
 name = input()
 
 f = name + ".csv"
-
-with open(f, 'w', newline='') as file:
-	csvreader = csv.reader(file)
-	writer = csv.writer(file)
-	writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy", "Emotion Detected"])
-
-print("training emotion detection model")
 
 mp_drawing = mp.solutions.drawing_utils
 mp_face_mesh = mp.solutions.face_mesh
@@ -116,8 +112,15 @@ def emotion(path):
 	input_arr = np.array([i])
 	input_arr.shape
 	
+	# prepare data
+	train_datagen = ImageDataGenerator(zoom_range = 0.2, shear_range = 0.2, horizontal_flip=True, rescale = 1./255)
+	train_data = train_datagen.flow_from_directory(directory= "train", target_size=(224,224), batch_size=32,)
+	train_data.class_indices
+	
+	op = dict(zip( train_data.class_indices.values(), train_data.class_indices.keys()))
+	
 	pred = np.argmax(loaded_model.predict(input_arr))
-	print(f"{op[pred]}")
+	return op[pred]
 
 
 def within_time(launch_time, start, end):
@@ -129,7 +132,6 @@ def within_time(launch_time, start, end):
 
 	return False
 
-'''
 gaze = GazeTracking()
 webcam = cv2.VideoCapture(0)
 
@@ -150,6 +152,8 @@ pupil10 = (0, 0)
 not_calibrated = True
 not_validated = True
 
+current_frame_count = 0
+
 
 while True:
 
@@ -167,15 +171,24 @@ while True:
 
 		frame.flags.writeable = True
 		
+		if not os.path.exists('frames'):
+			os.mkdir('frames')
+		
 		if results.multi_face_landmarks:
 			for face_landmarks in results.multi_face_landmarks:
 				mp_drawing.draw_landmarks(image=frame, landmark_list=face_landmarks, connections=mp_face_mesh.FACEMESH_CONTOURS, landmark_drawing_spec=drawing_spec, connection_drawing_spec= drawing_spec)
-
+				
+				
+		# STORE FRAMES
+		name = 'frames/' + str(current_frame_count) + '.jpg'
+		cv2.imwrite(name, frame)
+		current_frame_count += 1
 
 		dim = (window_width, window_height)
 		frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
 		frame = cv2.flip(frame, 1)
 		cv2.imshow("Demo", frame)
+		
 
 		left_pupil = gaze.pupil_left_coords()
 		right_pupil = gaze.pupil_right_coords()
@@ -378,16 +391,27 @@ while True:
 				actual = np.array([ list(point1), list(point2), list(point3), list(point4), list(point5), list(point6), list(point7), list(point8), list(point9), list(point10) ])
 
 				distances = []
+				image_list = []
+				image_names = []
+				
+				for filename in glob.glob('frames/*.jpg'): 
+					image_names.append(filename)
+				
 
 				with open(f, 'w', newline='') as file:
+				
+					csvreader = csv.reader(file)
+					writer = csv.writer(file)
+					writer.writerow(["Actual Coordinate", "Experimental Coordinate", "Accuracy", "Emotion Detected"])
+			
 
 					# write data to csv
-					for i in range(len(actualPoints)):
+					for i in range(len(actual)):
 																			# write set of points to text file
 						d = math.dist(actual[i], experimental[i])			# calculate dist for each set of points
 						distances.append(d)									# add to total distances
-						e = emotion(frame)
-						writer.writerow([actual[i], experimental[i], d, e])	# write to csv 
+						e = emotion('frames/' + str(i) + '.jpg')							# determine emotion at each frame
+						writer.writerow([actual[i], experimental[i], d, str(e)]) # write to csv 
 											
 					# average euclidean distance calculation
 					avgDist = sum(distances)/(len(distances))
@@ -416,4 +440,4 @@ while True:
 
 webcam.release()
 cv2.destroyAllWindows()
-'''
+
